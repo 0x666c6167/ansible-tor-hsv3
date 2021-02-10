@@ -1,0 +1,82 @@
+---
+
+- name: Install TOR
+  apt:
+    name: tor
+    update_cache: yes
+  become: true
+
+- name: Deploy .torrc
+  copy:
+    src: "files/etc/tor/torrc"
+    dest: "/etc/tor/torrc"
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  become: true
+
+- name: Create Tor Hidden Service directory
+  file:
+    path: "{{hsv3_dir}}"
+    state: directory
+    owner: debian-tor
+    group: debian-tor
+    mode: u=rwx,g=,o=
+  become: true
+  notify: Restart TOR Service
+
+# - name : Debug
+#   debug: 
+#      msg : "Hidden Service V3 Hostname is : {{lookup('file', '{{hsv3_dir}}/hostname') }}"
+#   become: true
+
+- name: Debug
+  shell: "cat {{hsv3_dir}}/hostname"
+  become: true
+  register: hsv3_hostname
+
+- name: debug hostname
+  debug:
+    msg: "Hidden Service V3 Hostname is :  {{ hsv3_hostname.stdout }}"
+
+
+- name: Create a website directory if it does not exist
+  file:
+    path: '{{hsv3_website_dir}}'
+    state: directory
+    mode: '0755'
+  become: true
+  
+- name: Deploy index.html
+  template:
+    src: index.html.j2
+    dest: "{{hsv3_website_dir}}/index.html"
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  become: true
+
+- name: Install Apache2
+  apt:
+    name: apache2
+    update_cache: yes
+  become: true
+
+- name: Deploy Apache conf
+  template:
+    src: 000-default.conf.j2
+    dest: /etc/apache2/sites-available/000-default.conf
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  become: true
+  notify: Restart APACHE Service
+
+
+- name: test it
+  shell: 'curl --socks5-hostname 127.0.0.1:9050 {{ hsv3_hostname.stdout }} -vsw "\n"'
+  register: curl_output
+
+- name: Display response
+  debug: 
+    var: curl_output

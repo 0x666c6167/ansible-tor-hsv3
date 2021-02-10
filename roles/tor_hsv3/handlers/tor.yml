@@ -1,0 +1,7 @@
+- name: Restart TOR Service
+  tasks:
+    - service:
+        name: tor
+        state: restarted
+    - debug :
+        msg: "TOR Daemon restarting..."

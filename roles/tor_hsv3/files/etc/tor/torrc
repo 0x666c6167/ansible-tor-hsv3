@@ -1,0 +1,3 @@
+HiddenServiceDir /var/lib/tor/tor_hsv3/
+HiddenServiceVersion 3
+HiddenServicePort 80 127.0.0.1:8000

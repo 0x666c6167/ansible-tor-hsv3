@@ -1,0 +1,7 @@
+---
+- name: Installing TOR
+  vars_files: myvps-vault
+  hosts: myvps
+  tasks:
+    - include_role:
+        name: roles/tor_hsv3

@@ -1,0 +1,5 @@
+ansible_connection: local 
+ansible_python_interpreter: python3
+
+hsv3_dir: /var/lib/tor/tor_hsv3
+hsv3_website_dir: /var/www/hsv3
